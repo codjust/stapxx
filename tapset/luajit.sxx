@@ -80,12 +80,10 @@ $*pt := @cast(pt, "GCproto", "$^libluajit_path")
 %)
 
 @define frame_gc(frame) %(
-   // @cast(@frame, "TValue", "$^libluajit_path")->fr->func->gcptr32
     @gcval(@frame - @sizeof_TValue)
 %)
 
 @define frame_ftsz(tv) %(
-    //@cast(@tv, "TValue", "$^libluajit_path")->fr->tp->ftsz
     @cast(@tv, "TValue", "$^libluajit_path")->ftsz
 %)
 
@@ -106,12 +104,10 @@ $*pt := @cast(pt, "GCproto", "$^libluajit_path")
 %)
 
 @define frame_pc(tv) %(
-    //@cast(@tv, "TValue", "$^libluajit_path")->fr->tp->pcr->ptr32
     @cast(@tv, "TValue", "$^libluajit_path")->ftsz
 %)
 
 @define frame_contpc(f) %(
-    //(@frame_pc(@f) - 1 * @sizeof_BCIns)
     (@frame_pc(@f - 2 * @sizeof_TValue))
 %)
 
@@ -120,7 +116,6 @@ $*pt := @cast(pt, "GCproto", "$^libluajit_path")
 %)
 
 @define frame_prevl(f) %(
-    //(@f - (1 + @bc_a(user_uint32(@frame_pc(@f) - 4))) * @sizeof_TValue)
     (@f - (1 + @LJ_FR2 + @bc_a(user_uint32(@frame_pc(@f) - 4))) * @sizeof_TValue)
 %)
 
@@ -147,7 +142,6 @@ $*pt := @cast(pt, "GCproto", "$^libluajit_path")
 %)
 
 @define funcproto(fn) %(
-    //(@cast(@fn, "GCfunc", "$^libluajit_path")->l->pc->ptr32 - @sizeof_GCproto)
     (@cast(@fn, "GCfunc", "$^libluajit_path")->l->pc->ptr64 - @sizeof_GCproto)
 %)
 
@@ -156,7 +150,6 @@ $*pt := @cast(pt, "GCproto", "$^libluajit_path")
 %)
 
 @define proto_bcpos(pt, pc) %(
-   // ((@pc - @proto_bc(@pt)) / @sizeof_BCIns)
     ((@pc - @proto_bc(@pt)) / @sizeof_TValue)
 %)
 
@@ -469,7 +462,7 @@ function luajit_touserdata(L, idx)
 
 
 function luajit_proto_chunkname(pt) {
-    gco = $*pt->chunkname->gcptr32
+    gco = $*pt->chunkname->gcptr64
     return &$*gco->str
 }
 
